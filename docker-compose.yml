@@ -1,3 +1,4 @@
+version: "3.9"
 services:
   flowise:
     image: flowiseai/flowise
@@ -5,10 +6,16 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./flowise_data:/root/.flowise
+      - flowise_data:/root/.flowise
+    environment:
+      - FLOWISE_DATABASE_URL=http://chromadb:8000
+      - OLLAMA_API_BASE_URL=http://ollama:11434
+    depends_on:
+      - chromadb
+      - ollama
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD", "curl", "-f", "http://flowise:3000"]
       interval: 30s
       retries: 3
 
@@ -28,7 +35,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./chroma_data:/chroma 
+      - chroma_data:/chroma 
     restart: always
 
   n8n:
@@ -37,7 +44,7 @@ services:
     ports:
       - "5678:5678"
     volumes:
-      - ./n8n_data:/home/node/.n8n
+      - n8n_data:/home/node/.n8n
     restart: always
     environment:
       - GENERIC_TIMEZONE=Asia/Kolkata
@@ -52,7 +59,7 @@ services:
     restart: always
 
 volumes:
-  ollama:
-  chroma_data:
   flowise_data:
+  chroma_data:
   n8n_data:
+  ollama:
