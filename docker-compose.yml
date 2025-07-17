@@ -1,0 +1,58 @@
+services:
+  flowise:
+    image: flowiseai/flowise
+    container_name: flowise
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./flowise_data:/root/.flowise
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      retries: 3
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    restart: always
+    tty: true
+
+  chromadb:
+    image: chromadb/chroma
+    container_name: chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./chroma_data:/chroma 
+    restart: always
+
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+    restart: always
+    environment:
+      - GENERIC_TIMEZONE=Asia/Kolkata
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: chatbot-frontend
+    ports:
+      - "8080:80"
+    restart: always
+
+volumes:
+  ollama:
+  chroma_data:
+  flowise_data:
+  n8n_data:

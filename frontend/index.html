@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GDRIVE_AI_BOT</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .chat-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 800px;
+      height: 700px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chat-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .chat-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .chat-header .subtitle {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+
+    .chatbox {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      background: #fafafa;
+      scroll-behavior: smooth;
+    }
+
+    .chatbox::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chatbox::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .chatbox::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 10px;
+    }
+
+    .chatbox::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+
+    .message {
+      margin-bottom: 20px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .message.bot {
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .message-bubble {
+      max-width: 80%;
+      padding: 16px 20px;
+      border-radius: 20px;
+      position: relative;
+      word-wrap: break-word;
+      line-height: 1.5;
+    }
+
+    .message.user .message-bubble {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      border-bottom-right-radius: 8px;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .message.bot .message-bubble {
+      background: white;
+      color: #374151;
+      border-bottom-left-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
+    }
+
+    .message-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin: 0 12px;
+      flex-shrink: 0;
+    }
+
+    .message.user .message-avatar {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      font-size: 1.4rem;
+    }
+
+    .message.bot .message-avatar {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+    }
+
+    .input-area {
+      background: white;
+      padding: 24px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    #userInput {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid #e5e7eb;
+      border-radius: 25px;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+      background: #f9fafb;
+    }
+
+    #userInput:focus {
+      border-color: #4f46e5;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .send-button {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .send-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+    }
+
+    .send-button:active {
+      transform: translateY(0);
+    }
+
+    .send-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .typing-indicator {
+      display: none;
+      padding: 16px 20px;
+      background: white;
+      border-radius: 20px;
+      border-bottom-left-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
+      max-width: 80%;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #9ca3af;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-10px); }
+    }
+
+    .error-message {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .welcome-message {
+      text-align: center;
+      color: #6b7280;
+      font-style: italic;
+      margin-top: 40px;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+      .chat-container {
+        height: 100vh;
+        border-radius: 0;
+        max-width: 100%;
+      }
+      
+      .chat-header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .message-bubble {
+        max-width: 90%;
+      }
+      
+      .input-area {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>🤖 GDRIVE AI BOT</h1>
+      <div class="subtitle">Your intelligent document assistant</div>
+    </div>
+    
+    <div class="chatbox" id="chatbox">
+      <div class="welcome-message">
+        👋 Welcome! I'm here to help you with your documents. Ask me anything!
+      </div>
+    </div>
+    
+    <div class="input-area">
+      <div class="input-wrapper">
+        <input type="text" id="userInput" placeholder="Ask me anything about your documents..." />
+      </div>
+      <button class="send-button" onclick="sendMessage()" id="sendButton">
+        ➤
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const chatbox = document.getElementById('chatbox');
+    const userInput = document.getElementById('userInput');
+    const sendButton = document.getElementById('sendButton');
+    const endpoint = 'http://localhost:3000/api/v1/prediction/7603f220-efd5-4245-afb9-d385a5c86735';
+
+    // Enter key support
+    userInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    function appendMessage(sender, text, isUser = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.textContent = isUser ? '👨‍💼' : '🤖';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      bubble.textContent = text;
+      
+      if (isUser) {
+        messageDiv.appendChild(bubble);
+        messageDiv.appendChild(avatar);
+      } else {
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(bubble);
+      }
+      
+      chatbox.appendChild(messageDiv);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'typing-indicator';
+      typingDiv.id = 'typing-indicator';
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.textContent = '🤖';
+      
+      const dotsContainer = document.createElement('div');
+      dotsContainer.className = 'typing-dots';
+      
+      for (let i = 0; i < 3; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'typing-dot';
+        dotsContainer.appendChild(dot);
+      }
+      
+      typingDiv.appendChild(avatar);
+      typingDiv.appendChild(dotsContainer);
+      typingDiv.style.display = 'flex';
+      
+      chatbox.appendChild(typingDiv);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      const typingIndicator = document.getElementById('typing-indicator');
+      if (typingIndicator) {
+        typingIndicator.remove();
+      }
+    }
+
+    function showError(message) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.innerHTML = `⚠️ ${message}`;
+      chatbox.appendChild(errorDiv);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const question = userInput.value.trim();
+      if (!question) return;
+
+      // Disable input and button
+      userInput.disabled = true;
+      sendButton.disabled = true;
+      
+      // Add user message
+      appendMessage('You', question, true);
+      userInput.value = '';
+      
+      // Show typing indicator
+      showTypingIndicator();
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            question: question,
+            overrideConfig: {}
+          })
+        });
+
+        hideTypingIndicator();
+
+        if (!res.ok) {
+          throw new Error(`Server error: ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (data && data.text) {
+          appendMessage('Bot', data.text, false);
+        } else {
+          showError('No response from the AI. Please try again.');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        hideTypingIndicator();
+        showError('Connection failed. Please check if the server is running.');
+      } finally {
+        // Re-enable input and button
+        userInput.disabled = false;
+        sendButton.disabled = false;
+        userInput.focus();
+      }
+    }
+
+    // Focus input on page load
+    window.addEventListener('load', () => {
+      userInput.focus();
+    });
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
