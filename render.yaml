@@ -2,7 +2,7 @@ services:
   - type: web
     name: frontend
     env: docker
-    repo: https://github.com/YOUR_USERNAME/rag-chatbot.git
+    repo: https://github.com/MICHAEL-MARIA16/GDRIVE-ai-assistent
     dockerfilePath: ./frontend/Dockerfile
     branch: main
     plan: free
@@ -12,7 +12,7 @@ services:
   - type: web
     name: flowise
     env: docker
-    repo: https://github.com/YOUR_USERNAME/rag-chatbot.git
+    repo: https://github.com/MICHAEL-MARIA16/GDRIVE-ai-assistent
     dockerCommand: docker run -p 3000:3000 flowiseai/flowise
     branch: main
     plan: free
@@ -21,7 +21,7 @@ services:
   - type: web
     name: ollama
     env: docker
-    repo: https://github.com/YOUR_USERNAME/rag-chatbot.git
+    repo: https://github.com/MICHAEL-MARIA16/GDRIVE-ai-assistent
     dockerCommand: docker run -p 11434:11434 ollama/ollama
     branch: main
     plan: free
@@ -30,7 +30,7 @@ services:
   - type: web
     name: chromadb
     env: docker
-    repo: https://github.com/YOUR_USERNAME/rag-chatbot.git
+    repo: https://github.com/MICHAEL-MARIA16/GDRIVE-ai-assistent
     dockerCommand: docker run -p 8000:8000 chromadb/chroma
     branch: main
     plan: free
@@ -39,7 +39,7 @@ services:
   - type: web
     name: n8n
     env: docker
-    repo: https://github.com/YOUR_USERNAME/rag-chatbot.git
+    repo: https://github.com/MICHAEL-MARIA16/GDRIVE-ai-assistent
     dockerCommand: docker run -p 5678:5678 n8nio/n8n
     branch: main
     plan: free
